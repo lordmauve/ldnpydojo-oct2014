@@ -13,10 +13,13 @@ ACCESS_TOKEN = twitter.obtain_access_token()
 twitter = Twython(APP_KEY, access_token=ACCESS_TOKEN)
 
 with open('words.txt') as word_file:
-    words = word_file.read().strip().split(',')
+    words = [word.strip() for word in word_file]
     drunkeness_regex = re.compile(
         r'(^|\s|#)(%s)\b' % "|".join(words)
     )
+    print drunkeness_regex.pattern
+    # import sys
+    # sys.exit()
 
 with open('cities.txt') as city_file:
     cities = {}
@@ -30,7 +33,7 @@ def get_tweets(location):
         q='-RT',
         geocode=location,
         result_type='recent',
-        count='5'
+        count='100'
     )
     return [t["text"] for t in tweets["statuses"]]
 
@@ -41,7 +44,8 @@ def get_drunkeness(tweet):
 
 def drunkeness_of_location(location):
     tweets = get_tweets(location)
-    return sum(get_drunkeness(t) for t in tweets) / len(tweets)
+    # print tweets
+    return sum(get_drunkeness(t) for t in tweets) / len(tweets) * 100
 
 
 def how_drunk():
