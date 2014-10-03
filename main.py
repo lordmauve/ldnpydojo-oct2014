@@ -14,10 +14,11 @@ twitter = Twython(APP_KEY, access_token=ACCESS_TOKEN)
 
 with open('words.txt') as word_file:
     words = [word.strip() for word in word_file]
+    query = " OR ".join(words)
     drunkeness_regex = re.compile(
         r'(^|\s|#)(%s)\b' % "|".join(words)
     )
-    print drunkeness_regex.pattern
+    # print drunkeness_regex.pattern
     # import sys
     # sys.exit()
 
@@ -30,7 +31,7 @@ with open('cities.txt') as city_file:
 
 def get_tweets(location):
     tweets = twitter.search(
-        q='-RT',
+        q='{} -RT'.format(query),
         geocode=location,
         result_type='recent',
         count='100'
@@ -45,7 +46,7 @@ def get_drunkeness(tweet):
 def drunkeness_of_location(location):
     tweets = get_tweets(location)
     # print tweets
-    return sum(get_drunkeness(t) for t in tweets) / len(tweets) * 100
+    return int(sum(get_drunkeness(t) for t in tweets) / len(tweets) * 100)
 
 
 def how_drunk():
@@ -65,4 +66,4 @@ def test_drunk():
 
 if __name__ == "__main__":
     for city, geocode in cities.iteritems():
-        print city, "is", drunkeness_of_location(geocode), "drunk"
+        print "{} is {}% drunk".format(city, drunkeness_of_location(geocode))
